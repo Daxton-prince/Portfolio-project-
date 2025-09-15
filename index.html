@@ -276,13 +276,16 @@
             </div>
 
             <!-- Reach -->
-            <div class="chat-box">
-  <h3>Send me a message</h3>
-  <input type="text" id="name" placeholder="Your Name" required>
-  <input type="email" id="email" placeholder="Your Email" required>
-  <textarea id="message" placeholder="Type your message..." required></textarea>
-  <button onclick="sendTelegram()">Send</button>
-</div>
+           <h2>Contact Us</h2>
+  <form id="contactForm">
+    <input type="text" name="name" placeholder="Your Name" required><br><br>
+    <input type="email" name="email" placeholder="Your Email" required><br><br>
+    <textarea name="message" placeholder="Your Message" required></textarea><br><br>
+    <button type="submit">Send</button>
+  </form>
+
+  <!-- Notification box -->
+  <div id="notification" class="notification"></div>
             </div>
           </div>
         </div>
@@ -1099,33 +1102,15 @@ footer span a {
 footer span a:hover {
   text-decoration: underline;
 }
- .chat-box {
-      width: 320px;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      padding: 15px;
-      font-family: Arial, sans-serif;
-    }
-    .chat-box input, .chat-box textarea {
-      width: 100%;
-      margin: 6px 0;
-      padding: 8px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-    }
-    .chat-box button {
-      width: 100%;
+ .notification {
+      display: none;
       padding: 10px;
-      margin-top: 8px;
-      background: #0088cc;
-      color: white;
-      border: none;
+      margin-top: 15px;
       border-radius: 5px;
-      cursor: pointer;
       font-weight: bold;
     }
-    .chat-box button:hover {
-      background: #006699;
+    .success { background: #d4edda; color: #155724; }
+    .error { background: #f8d7da; color: #721c24; }
 /*  Media Query  */
 @keyframes pulsate {
   0% {
@@ -1265,6 +1250,37 @@ footer span a:hover {
 } 
     </style>
     <script>
+       const form = document.getElementById('contactForm');
+    const notification = document.getElementById('notification');
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault(); // prevent page refresh
+
+      const formData = new FormData(form);
+
+      fetch('send.php', {
+        method: 'POST',
+        body: formData
+      })
+      .then(res => res.text())
+      .then(data => {
+        if (data.includes('"ok":true')) { 
+          notification.innerText = "✅ Message sent successfully! We'll get back to you soon.";
+          notification.className = "notification success";
+          notification.style.display = "block";
+          form.reset(); // clear form
+        } else {
+          notification.innerText = "❌ Failed to send message. Try again later.";
+          notification.className = "notification error";
+          notification.style.display = "block";
+        }
+      })
+      .catch(err => {
+        notification.innerText = "⚠️ Network error. Please try again.";
+        notification.className = "notification error";
+        notification.style.display = "block";
+      });
+    });
         $(document).ready(function () {
   $(window).scroll(function () {
     //  sticky navbar on scroll script  //
@@ -1335,33 +1351,7 @@ footer span a:hover {
     backSpeed: 60,
     loop: true
   });
-function sendTelegram() {
-  let name = document.getElementById("name").value;
-  let email = document.getElementById("email").value;
-  let message = document.getElementById("message").value;
 
-  let telegramBotToken = "8369883883:AAEwStouglzBaRWDWXpEiasDMDntnxOfvzk";  // replace with your bot token
-  let chatId = "5963539655";              // replace with your chat ID
-
-  let text = "📩 New message from portfolio:%0A" +
-             "👤 Name: " + name + "%0A" +
-             "✉️ Email: " + email + "%0A" +
-             "💬 Message: " + message;
-
-  let url = `https://api.telegram.org/bot${telegramBotToken}/sendMessage?chat_id=${chatId}&text=${text}`;
-
-  // Send request
-  fetch(url).then(response => {
-    if (response.ok) {
-      alert("Message sent successfully!");
-      document.getElementById("name").value = "";
-      document.getElementById("email").value = "";
-      document.getElementById("message").value = "";
-    } else {
-      alert("Failed to send message. Try again.");
-    }
-  });
-}
   //  Owl Carousel  //
 
   $(".carousel").owlCarousel({

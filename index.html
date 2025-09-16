@@ -277,12 +277,13 @@
 
             <!-- Reach -->
            <h2>Contact Us</h2>
-<form id="contactForm">
+<form id="contactForm" class="contact-form">
   <input type="text" name="name" placeholder="Your Name" required>
+  <input type="email" name="email" placeholder="Your Email" required>
+  <input type="tel" name="whatsapp" placeholder="Your WhatsApp Number" required>
   <textarea name="message" placeholder="Your Message" required></textarea>
   <button type="submit">Send</button>
 </form>
-
   <!-- Notification box -->
   <div id="notification" class="notification"></div>
             </div>
@@ -1249,21 +1250,37 @@ footer span a:hover {
 } 
     </style>
     <script>
-     document.getElementById("contactForm").addEventListener("submit", async (e) => {
+document.getElementById("contactForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
   let name = e.target.name.value;
+  let email = e.target.email.value;
+  let whatsapp = e.target.whatsapp.value;
   let message = e.target.message.value;
-  let fullMessage = `📩 New Portfolio Message\n\n👤 Name: ${name}\n💬 Message: ${message}`;
 
-  let res = await fetch("/api/send", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message: fullMessage })
-  });
+  // Format the message for Telegram
+  let fullMessage = `
+📩 New Portfolio Message
+-------------------------
+👤 Name: ${name}
+📧 Email: ${email}
+📱 WhatsApp: ${whatsapp}
+💬 Message: ${message}
+  `;
 
-  let data = await res.json();
-  alert(data.msg || "Message sent!");
+  try {
+    let res = await fetch("/api/send", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: fullMessage })
+    });
+
+    let data = await res.json();
+    alert(data.msg || "✅ Message sent successfully!");
+    e.target.reset(); // clear form after submit
+  } catch (err) {
+    alert("❌ Failed to send message. Please try again.");
+  }
 });
     //  sticky navbar on scroll script  //
     if (this.scrollY > 20) {

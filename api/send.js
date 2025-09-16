@@ -1,26 +1,39 @@
+// /api/sendMessage.js
+import fetch from 'node-fetch';
+
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
+  if(req.method === 'POST'){
+    const { name, email, message } = req.body;
 
-  const { message } = req.body;
-  const TELEGRAM_TOKEN = process.env.BOT_TOKEN;
-  const CHAT_ID = process.env.CHAT_ID;
+    if(!name || !email || !message){
+      return res.status(400).json({ success: false, error: 'All fields are required' });
+    }
 
-  try {
-    const telegramUrl = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
+    const telegramBotToken = 'YOUR_TELEGRAM_BOT_TOKEN';
+    const chatId = 'YOUR_TELEGRAM_CHAT_ID';
+    const text = `New Message from Portfolio:\n\nName: ${name}\nEmail: ${email}\nMessage: ${message}`;
 
-    await fetch(telegramUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chat_id: CHAT_ID,
-        text: message,
-      }),
-    });
+    try {
+      const telegramResponse = await fetch(`https://api.telegram.org/bot${telegramBotToken}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: chatId, text })
+      });
 
-    res.status(200).json({ success: true, msg: "✅ Message sent to Telegram!" });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+      const data = await telegramResponse.json();
+
+      if(data.ok){
+        res.status(200).json({ success: true });
+      } else {
+        res.status(500).json({ success: false, error: 'Telegram API failed' });
+      }
+
+    } catch(err){
+      console.error(err);
+      res.status(500).json({ success: false, error: 'Server error' });
+    }
+
+  } else {
+    res.status(405).json({ success: false, error: 'Method not allowed' });
   }
 }

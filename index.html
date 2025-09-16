@@ -288,16 +288,13 @@
 
             <!-- Reach -->
              <div>
-                 <h2>Contact me</h2>
-   
-<form id="contactForm" class="contact-form">
- <form id="contactForm">
+             <h2>Contact Me</h2>
+<form id="contactForm">
   <input type="text" name="name" placeholder="Your Name" required /><br/>
   <input type="email" name="email" placeholder="Your Email" required /><br/>
+  <input type="text" name="whatsapp" placeholder="Your WhatsApp Number" /><br/>
   <textarea name="message" placeholder="Your Message" required></textarea><br/>
-  <button type="submit">Send</button>
-</form>
-
+  <button type="submit">Send Message</button>
 </form>
              </div>
   <!-- Notification box -->
@@ -1557,7 +1554,7 @@ function showNotification(message, success=true) {
   notification.classList.add('show');
   setTimeout(() => {
     notification.classList.remove('show');
-  }, 3000); // fades after 3 seconds
+  }, 3000);
 }
 
 document.getElementById('contactForm').addEventListener('submit', async (e) => {
@@ -1566,6 +1563,7 @@ document.getElementById('contactForm').addEventListener('submit', async (e) => {
   const formData = {
     name: e.target.name.value,
     email: e.target.email.value,
+    whatsapp: e.target.whatsapp.value,
     message: e.target.message.value
   };
 
@@ -1579,13 +1577,13 @@ document.getElementById('contactForm').addEventListener('submit', async (e) => {
     const data = await res.json();
 
     if (data.success) {
-      showNotification("✅ Message sent successfully! We'll get back to you soon.");
-      e.target.reset(); // optional: clear the form
+      showNotification("✅ Message sent! We'll get back to you soon.");
+      e.target.reset();
     } else {
-      showNotification(`❌ Failed to send message: ${data.error}`, false);
+      showNotification(`❌ Failed to send: ${data.error}`, false);
     }
   } catch (err) {
-    showNotification("❌ Error sending message. Please try again later.", false);
+    showNotification("❌ Error sending message. Try again later.", false);
     console.error(err);
   }
 });

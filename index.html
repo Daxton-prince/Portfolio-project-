@@ -1448,38 +1448,7 @@ $(document).ready(function(){
     }
   });
 
-   document.getElementById("contactForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const name = e.target.name.value;
-      const email = e.target.email.value;
-      const whatsapp = e.target.whatsapp.value;
-      const message = e.target.message.value;
-
-      const fullMessage = `
-📩 New Portfolio Message
--------------------------
-👤 Name: ${name}
-📧 Email: ${email}
-📱 WhatsApp: ${whatsapp}
-💬 Message: ${message}
-      `;
-
-      try {
-        const res = await fetch("/api/send", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: fullMessage })
-        });
-
-        const data = await res.json();
-        alert(data.msg || "✅ Message sent successfully!");
-        e.target.reset();
-      } catch (err) {
-        alert("❌ Failed to send message. Please try again.");
-        console.error(err);
-      }
-    });
+ 
     </script>
   </body>
 </html>

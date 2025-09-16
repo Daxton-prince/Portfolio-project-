@@ -1448,44 +1448,38 @@ $(document).ready(function(){
     }
   });
 
-  // Contact Form Submission (Optional: add AJAX)
-  $('#contactForm').submit(function(e){
-    e.preventDefault();
-    alert('Form submitted! You can connect this to your PHP or Telegram Bot.');
-  });
+   document.getElementById("contactForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-});
-// script.js
+      const name = e.target.name.value;
+      const email = e.target.email.value;
+      const whatsapp = e.target.whatsapp.value;
+      const message = e.target.message.value;
 
-document.getElementById('contactForm').addEventListener('submit', async function(e){
-    e.preventDefault();
+      const fullMessage = `
+📩 New Portfolio Message
+-------------------------
+👤 Name: ${name}
+📧 Email: ${email}
+📱 WhatsApp: ${whatsapp}
+💬 Message: ${message}
+      `;
 
-    const name = document.getElementById('name').value;
-    const email = document.getElementById('email').value;
-    const message = document.getElementById('message').value;
-
-    try {
-        const response = await fetch('/api/sendMessage', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, email, message })
+      try {
+        const res = await fetch("/api/send", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: fullMessage })
         });
 
-        const result = await response.json();
-
-        if(result.success){
-            alert('Message sent successfully!');
-            this.reset();
-        } else {
-            alert('Failed to send message.');
-        }
-
-    } catch (err) {
+        const data = await res.json();
+        alert(data.msg || "✅ Message sent successfully!");
+        e.target.reset();
+      } catch (err) {
+        alert("❌ Failed to send message. Please try again.");
         console.error(err);
-        alert('Error sending message.');
-    }
-});
-
+      }
+    });
     </script>
   </body>
 </html>

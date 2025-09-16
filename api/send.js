@@ -1,14 +1,12 @@
-// api/send.js
 export default async function handler(req, res) {
+  console.log("BOT_TOKEN:", process.env.BOT_TOKEN ? "Loaded" : "Missing");
+  console.log("CHAT_ID:", process.env.CHAT_ID);
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   const { name, email, whatsapp, message } = req.body;
-
-  if (!name || !email || !message) {
-    return res.status(400).json({ success: false, error: 'Missing fields' });
-  }
 
   try {
     const telegramRes = await fetch(`https://api.telegram.org/bot${process.env.BOT_TOKEN}/sendMessage`, {
@@ -16,12 +14,12 @@ export default async function handler(req, res) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         chat_id: process.env.CHAT_ID,
-        text: `📩 New Message from Portfolio:\n\n👤 Name: ${name}\n📧 Email: ${email}\n📱 WhatsApp: ${whatsapp || 'N/A'}\n💬 Message: ${message}`
+        text: `📩 New Message:\nName: ${name}\nEmail: ${email}\nWhatsApp: ${whatsapp || 'N/A'}\nMessage: ${message}`
       })
     });
 
     const data = await telegramRes.json();
-
+    console.log("Telegram response:", data); // 👈 log actual error
     if (!data.ok) {
       throw new Error(data.description || 'Telegram API error');
     }

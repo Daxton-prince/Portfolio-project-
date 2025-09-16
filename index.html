@@ -277,12 +277,11 @@
 
             <!-- Reach -->
            <h2>Contact Us</h2>
-  <form id="contactForm">
-    <input type="text" name="name" placeholder="Your Name" required><br><br>
-    <input type="email" name="email" placeholder="Your Email" required><br><br>
-    <textarea name="message" placeholder="Your Message" required></textarea><br><br>
-    <button type="submit">Send</button>
-  </form>
+<form id="contactForm">
+  <input type="text" name="name" placeholder="Your Name" required>
+  <textarea name="message" placeholder="Your Message" required></textarea>
+  <button type="submit">Send</button>
+</form>
 
   <!-- Notification box -->
   <div id="notification" class="notification"></div>
@@ -1250,39 +1249,22 @@ footer span a:hover {
 } 
     </style>
     <script>
-       const form = document.getElementById('contactForm');
-    const notification = document.getElementById('notification');
+     document.getElementById("contactForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-    form.addEventListener('submit', function(e) {
-      e.preventDefault(); // prevent page refresh
+  let name = e.target.name.value;
+  let message = e.target.message.value;
+  let fullMessage = `📩 New Portfolio Message\n\n👤 Name: ${name}\n💬 Message: ${message}`;
 
-      const formData = new FormData(form);
+  let res = await fetch("/api/send", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message: fullMessage })
+  });
 
-      fetch('send.php', {
-        method: 'POST',
-        body: formData
-      })
-      .then(res => res.text())
-      .then(data => {
-        if (data.includes('"ok":true')) { 
-          notification.innerText = "✅ Message sent successfully! We'll get back to you soon.";
-          notification.className = "notification success";
-          notification.style.display = "block";
-          form.reset(); // clear form
-        } else {
-          notification.innerText = "❌ Failed to send message. Try again later.";
-          notification.className = "notification error";
-          notification.style.display = "block";
-        }
-      })
-      .catch(err => {
-        notification.innerText = "⚠️ Network error. Please try again.";
-        notification.className = "notification error";
-        notification.style.display = "block";
-      });
-    });
-        $(document).ready(function () {
-  $(window).scroll(function () {
+  let data = await res.json();
+  alert(data.msg || "Message sent!");
+});
     //  sticky navbar on scroll script  //
     if (this.scrollY > 20) {
       $(".navbar").addClass("sticky");

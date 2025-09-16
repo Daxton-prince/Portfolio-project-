@@ -1,35 +1,34 @@
+// api/send.js
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { name, email, message } = req.body;
-  const botToken = process.env.BOT_TOKEN;
-  const chatId = process.env.CHAT_ID;
+  const { name, email, whatsapp, message } = req.body;
 
-  if (!botToken || !chatId) {
-    return res.status(500).json({ error: "BOT_TOKEN or CHAT_ID not set" });
+  if (!name || !email || !message) {
+    return res.status(400).json({ success: false, error: 'Missing fields' });
   }
-
-  const text = `📩 New message:\nName: ${name}\nEmail: ${email}\nMessage: ${message}`;
 
   try {
-    const tgRes = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ chat_id: chatId, text }),
+    const telegramRes = await fetch(`https://api.telegram.org/bot${process.env.BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: process.env.CHAT_ID,
+        text: `📩 New Message from Portfolio:\n\n👤 Name: ${name}\n📧 Email: ${email}\n📱 WhatsApp: ${whatsapp || 'N/A'}\n💬 Message: ${message}`
+      })
     });
 
-    const data = await tgRes.json();
+    const data = await telegramRes.json();
 
     if (!data.ok) {
-      // send Telegram error back to the frontend
-      return res.status(500).json({ error: data.description });
+      throw new Error(data.description || 'Telegram API error');
     }
 
     res.status(200).json({ success: true });
   } catch (err) {
-    console.error("Telegram API Error:", err);
-    res.status(500).json({ error: err.message || "Unknown error" });
+    console.error('Telegram Error:', err);
+    res.status(500).json({ success: false, error: err.message });
   }
 }

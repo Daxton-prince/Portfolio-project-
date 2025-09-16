@@ -1,39 +1,38 @@
-// /api/sendMessage.js
-import fetch from 'node-fetch';
-
 export default async function handler(req, res) {
-  if(req.method === 'POST'){
-    const { name, email, message } = req.body;
+  console.log("Handler triggered"); // for debugging
 
-    if(!name || !email || !message){
-      return res.status(400).json({ success: false, error: 'All fields are required' });
-    }
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
 
-    const telegramBotToken = '8369883883:AAEwStouglzBaRWDWXpEiasDMDntnxOfvzk';
-    const chatId = '5963539655';
-    const text = `New Message from Portfolio:\n\nName: ${name}\nEmail: ${email}\nMessage: ${message}`;
+  const { message } = req.body;
+  console.log("Message received:", message); // debug
 
-    try {
-      const telegramResponse = await fetch(`https://api.telegram.org/bot${telegramBotToken}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: chatId, text })
-      });
+  const BOT_TOKEN = process.env.BOT_TOKEN;
+  const CHAT_ID = process.env.CHAT_ID;
 
-      const data = await telegramResponse.json();
+  if (!BOT_TOKEN || !CHAT_ID) {
+    return res.status(500).json({ success: false, error: "Environment variables missing" });
+  }
 
-      if(data.ok){
-        res.status(200).json({ success: true });
-      } else {
-        res.status(500).json({ success: false, error: 'Telegram API failed' });
-      }
+  try {
+    const telegramUrl = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
 
-    } catch(err){
-      console.error(err);
-      res.status(500).json({ success: false, error: 'Server error' });
-    }
+    const response = await fetch(telegramUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: CHAT_ID,
+        text: message,
+      }),
+    });
 
-  } else {
-    res.status(405).json({ success: false, error: 'Method not allowed' });
+    const data = await response.json();
+    if (!data.ok) throw new Error(data.description);
+
+    res.status(200).json({ success: true, msg: "✅ Message sent to Telegram!" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: error.message });
   }
 }

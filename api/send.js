@@ -9,8 +9,8 @@ export default async function handler(req, res) {
       return res.status(400).json({ success: false, error: 'All fields are required' });
     }
 
-    const telegramBotToken = 'YOUR_TELEGRAM_BOT_TOKEN';
-    const chatId = 'YOUR_TELEGRAM_CHAT_ID';
+    const telegramBotToken = '8369883883:AAEwStouglzBaRWDWXpEiasDMDntnxOfvzk';
+    const chatId = '5963539655';
     const text = `New Message from Portfolio:\n\nName: ${name}\nEmail: ${email}\nMessage: ${message}`;
 
     try {

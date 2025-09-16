@@ -1351,7 +1351,25 @@ footer span a:hover {
     margin-bottom: 35px;
   }
 }
-
+/* Notification styling */
+  #notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #4caf50; /* green */
+    color: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+    z-index: 9999;
+  }
+  #notification.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
 @media (max-width: 690px) {
   .max-width {
     padding: 0 23px;
@@ -1529,7 +1547,46 @@ footer span a:hover {
     }
   });
 });
+const notification = document.getElementById('notification');
 
+function showNotification(message, success=true) {
+  notification.textContent = message;
+  notification.style.backgroundColor = success ? '#4caf50' : '#f44336';
+  notification.classList.add('show');
+  setTimeout(() => {
+    notification.classList.remove('show');
+  }, 3000); // fades after 3 seconds
+}
+
+document.getElementById('contactForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const formData = {
+    name: e.target.name.value,
+    email: e.target.email.value,
+    message: e.target.message.value
+  };
+
+  try {
+    const res = await fetch('/api/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData)
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      showNotification("✅ Message sent successfully! We'll get back to you soon.");
+      e.target.reset(); // optional: clear the form
+    } else {
+      showNotification(`❌ Failed to send message: ${data.error}`, false);
+    }
+  } catch (err) {
+    showNotification("❌ Error sending message. Please try again later.", false);
+    console.error(err);
+  }
+});
     </script>
   </body>
 </html>

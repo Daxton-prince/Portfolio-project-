@@ -1,38 +1,35 @@
 export default async function handler(req, res) {
-  console.log("Handler triggered"); // for debugging
-
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { message } = req.body;
-  console.log("Message received:", message); // debug
+  const { name, email, message } = req.body;
+  const botToken = process.env.BOT_TOKEN;
+  const chatId = process.env.CHAT_ID;
 
-  const BOT_TOKEN = process.env.BOT_TOKEN;
-  const CHAT_ID = process.env.CHAT_ID;
-
-  if (!BOT_TOKEN || !CHAT_ID) {
-    return res.status(500).json({ success: false, error: "Environment variables missing" });
+  if (!botToken || !chatId) {
+    return res.status(500).json({ error: "BOT_TOKEN or CHAT_ID not set" });
   }
 
-  try {
-    const telegramUrl = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+  const text = `📩 New message:\nName: ${name}\nEmail: ${email}\nMessage: ${message}`;
 
-    const response = await fetch(telegramUrl, {
+  try {
+    const tgRes = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chat_id: CHAT_ID,
-        text: message,
-      }),
+      body: JSON.stringify({ chat_id: chatId, text }),
     });
 
-    const data = await response.json();
-    if (!data.ok) throw new Error(data.description);
+    const data = await tgRes.json();
 
-    res.status(200).json({ success: true, msg: "✅ Message sent to Telegram!" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, error: error.message });
+    if (!data.ok) {
+      // send Telegram error back to the frontend
+      return res.status(500).json({ error: data.description });
+    }
+
+    res.status(200).json({ success: true });
+  } catch (err) {
+    console.error("Telegram API Error:", err);
+    res.status(500).json({ error: err.message || "Unknown error" });
   }
 }

@@ -1397,39 +1397,37 @@ footer span a:hover {
 } 
     </style>
     <script>
-       const form = document.getElementById('contactForm');
-    const notification = document.getElementById('notification');
+      // script.js
 
-    form.addEventListener('submit', function(e) {
-      e.preventDefault(); // prevent page refresh
+document.getElementById('contactForm').addEventListener('submit', async function(e){
+    e.preventDefault();
 
-      const formData = new FormData(form);
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const message = document.getElementById('message').value;
 
-      fetch('send.php', {
-        method: 'POST',
-        body: formData
-      })
-      .then(res => res.text())
-      .then(data => {
-        if (data.includes('"ok":true')) { 
-          notification.innerText = "✅ Message sent successfully! We'll get back to you soon.";
-          notification.className = "notification success";
-          notification.style.display = "block";
-          form.reset(); // clear form
+    try {
+        const response = await fetch('/api/sendMessage', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, message })
+        });
+
+        const result = await response.json();
+
+        if(result.success){
+            alert('Message sent successfully!');
+            this.reset();
         } else {
-          notification.innerText = "❌ Failed to send message. Try again later.";
-          notification.className = "notification error";
-          notification.style.display = "block";
+            alert('Failed to send message.');
         }
-      })
-      .catch(err => {
-        notification.innerText = "⚠️ Network error. Please try again.";
-        notification.className = "notification error";
-        notification.style.display = "block";
-      });
-    });
-        $(document).ready(function () {
-  $(window).scroll(function () {
+
+    } catch (err) {
+        console.error(err);
+        alert('Error sending message.');
+    }
+});
+
     //  sticky navbar on scroll script  //
     if (this.scrollY > 20) {
       $(".navbar").addClass("sticky");

@@ -1397,7 +1397,7 @@ footer span a:hover {
 } 
     </style>
     <script>
-      // script.js
+      
 
 document.getElementById('contactForm').addEventListener('submit', async function(e){
     e.preventDefault();
@@ -1407,7 +1407,7 @@ document.getElementById('contactForm').addEventListener('submit', async function
     const message = document.getElementById('message').value;
 
     try {
-        const response = await fetch('/api/sendMessage', {
+        const response = await fetch('/api/send.js', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name, email, message })

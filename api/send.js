@@ -23,11 +23,11 @@ WhatsApp: ${whatsapp}
 Message: ${message}`;
 
   try {
-    // ✅ send to Telegram using built-in fetch
+    // ✅ Send to Telegram
     const tgRes = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ chat_id: chatId, text }),
+      body: JSON.stringify({ chat_id: chatId, text }), // built-in JSON
     });
 
     const tgData = await tgRes.json();
@@ -35,13 +35,13 @@ Message: ${message}`;
       return res.status(500).json({ error: tgData.description });
     }
 
-    // ✅ send to Email using Gmail App Password
+    // ✅ Send to Gmail (if email creds are set)
     if (emailUser && emailPass) {
       const transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
           user: emailUser,
-          pass: emailPass, // must be the 16-char Google App Password
+          pass: emailPass, // your 16-char Google App Password
         },
       });
 
@@ -53,9 +53,9 @@ Message: ${message}`;
       });
     }
 
-    res.status(200).json({ success: true });
+    return res.status(200).json({ success: true });
   } catch (err) {
     console.error("Error:", err);
-    res.status(500).json({ error: err.message || "Unknown error" });
+    return res.status(500).json({ error: err.message || "Unknown error" });
   }
 }

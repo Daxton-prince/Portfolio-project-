@@ -1466,6 +1466,30 @@ footer span a:hover {
 } 
     </style>
     <script>
+      document.getElementById('contactForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const formData = {
+    name: e.target.name.value,
+    email: e.target.email.value,
+    message: e.target.message.value
+  };
+
+  try {
+    const res = await fetch('/api/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData)
+    });
+
+    const data = await res.json();
+    if (data.success) alert('Message sent!');
+    else alert('Failed to send message.');
+  } catch (err) {
+    alert('Error sending message.');
+    console.error(err);
+  }
+});
         $(document).ready(function () {
   $(window).scroll(function () {
     //  sticky navbar on scroll script  //
@@ -1593,30 +1617,7 @@ footer span a:hover {
     }
   });
 });
-document.getElementById('contactForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
 
-  const formData = {
-    name: e.target.name.value,
-    email: e.target.email.value,
-    message: e.target.message.value
-  };
-
-  try {
-    const res = await fetch('/api/send', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData)
-    });
-
-    const data = await res.json();
-    if (data.success) alert('Message sent!');
-    else alert('Failed to send message.');
-  } catch (err) {
-    alert('Error sending message.');
-    console.error(err);
-  }
-});
     </script>
   </body>
 </html>

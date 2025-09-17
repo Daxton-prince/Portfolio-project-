@@ -11,7 +11,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "BOT_TOKEN or CHAT_ID not set" });
   }
 
-  const text = `📩 New message:\nName: ${name}\nEmail: ${email}\nMessage: ${message}`;
+  const text = `📩 New message from your portfolio:\nName: ${name}\nEmail: ${email}\nMessage: ${message}`;
 
   try {
     const tgRes = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {

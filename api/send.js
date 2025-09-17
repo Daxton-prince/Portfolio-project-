@@ -1,5 +1,3 @@
-import nodemailer from "nodemailer";
-
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -9,8 +7,8 @@ export default async function handler(req, res) {
 
   const botToken = process.env.BOT_TOKEN;
   const chatId = process.env.CHAT_ID;
-  const emailUser = process.env.EMAIL_USER;
-  const emailPass = process.env.EMAIL_PASS;
+  const resendApiKey = process.env.RESEND_API_KEY;
+  const emailUser = process.env.EMAIL_USER; // your receiving email
 
   if (!botToken || !chatId) {
     return res.status(500).json({ error: "BOT_TOKEN or CHAT_ID not set" });
@@ -23,11 +21,11 @@ WhatsApp: ${whatsapp}
 Message: ${message}`;
 
   try {
-    // ✅ Send to Telegram
+    // ✅ Send Telegram message
     const tgRes = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ chat_id: chatId, text }), // built-in JSON
+      body: JSON.stringify({ chat_id: chatId, text }),
     });
 
     const tgData = await tgRes.json();
@@ -35,22 +33,26 @@ Message: ${message}`;
       return res.status(500).json({ error: tgData.description });
     }
 
-    // ✅ Send to Gmail (if email creds are set)
-    if (emailUser && emailPass) {
-      const transporter = nodemailer.createTransport({
-        service: "gmail",
-        auth: {
-          user: emailUser,
-          pass: emailPass, // your 16-char Google App Password
+    // ✅ Send Email via Resend REST API
+    if (resendApiKey && emailUser) {
+      const emailRes = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${resendApiKey}`,
+          "Content-Type": "application/json",
         },
+        body: JSON.stringify({
+          from: "Portfolio Bot <onboarding@resend.dev>",
+          to: [emailUser],
+          subject: "New Portfolio Contact Message",
+          text,
+        }),
       });
 
-      await transporter.sendMail({
-        from: `"Portfolio Bot" <${emailUser}>`,
-        to: emailUser,
-        subject: "New Portfolio Contact Message",
-        text,
-      });
+      if (!emailRes.ok) {
+        const errData = await emailRes.json();
+        return res.status(500).json({ error: errData });
+      }
     }
 
     return res.status(200).json({ success: true });

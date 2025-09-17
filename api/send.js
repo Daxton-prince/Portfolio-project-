@@ -1,44 +1,35 @@
-// api/send.js
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method Not Allowed' });
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
+  const { name, email, message } = req.body;
+  const botToken = process.env.BOT_TOKEN;
+  const chatId = process.env.CHAT_ID;
+
+  if (!botToken || !chatId) {
+    return res.status(500).json({ error: "BOT_TOKEN or CHAT_ID not set" });
+  }
+
+  const text = `📩 New message:\nName: ${name}\nEmail: ${email}\nMessage: ${message}`;
+
   try {
-    const { name, email, whatsapp, message } = req.body;
-
-    const token = process.env.TELEGRAM_BOT_TOKEN;
-    const chatId = process.env.TELEGRAM_CHAT_ID;
-
-    if (!token || !chatId) {
-      throw new Error("Missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID");
-    }
-
-    const text = `
-📩 New Portfolio Message:
-👤 Name: ${name}
-📧 Email: ${email}
-📱 WhatsApp: ${whatsapp}
-💬 Message: ${message}
-    `;
-
-    const url = `https://api.telegram.org/bot${token}/sendMessage`;
-
-    const telegramRes = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const tgRes = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ chat_id: chatId, text }),
     });
 
-    const data = await telegramRes.json();
+    const data = await tgRes.json();
 
     if (!data.ok) {
-      throw new Error(JSON.stringify(data));
+      // send Telegram error back to the frontend
+      return res.status(500).json({ error: data.description });
     }
 
     res.status(200).json({ success: true });
   } catch (err) {
-    console.error("Telegram Error:", err);
-    res.status(500).json({ error: 'Failed to send message' });
+    console.error("Telegram API Error:", err);
+    res.status(500).json({ error: err.message || "Unknown error" });
   }
 }

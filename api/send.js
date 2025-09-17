@@ -1,68 +1,42 @@
-import nodemailer from "nodemailer";
+import fetch from 'node-fetch';
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
   const { name, email, whatsapp, message } = req.body;
 
-  if (!name || !email || !message) {
-    return res.status(400).json({ error: "Missing required fields" });
+  const botToken = process.env.TELEGRAM_BOT_TOKEN;
+  const chatId = process.env.TELEGRAM_CHAT_ID;
+
+  if (!botToken || !chatId) {
+    return res.status(500).json({ error: 'Missing Telegram credentials' });
   }
 
-  try {
-    // -----------------------
-    // 1. SEND TO TELEGRAM
-    // -----------------------
-    const telegramMessage = `📩 New Message:
+  const text = `📩 New Portfolio Message
+
 👤 Name: ${name}
 📧 Email: ${email}
-📱 WhatsApp: ${whatsapp || "N/A"}
+📱 WhatsApp: ${whatsapp || 'Not provided'}
 💬 Message: ${message}`;
 
-    await fetch(
-      `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chat_id: process.env.TELEGRAM_CHAT_ID,
-          text: telegramMessage,
-        }),
-      }
-    );
-
-    // -----------------------
-    // 2. SEND EMAIL REPLY TO USER
-    // -----------------------
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER, // your Gmail address
-        pass: process.env.EMAIL_PASS, // App Password from Google
-      },
+  try {
+    const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: chatId, text }),
     });
 
-    await transporter.sendMail({
-      from: `"Your Portfolio" <${process.env.EMAIL_USER}>`,
-      to: email, // send reply to the visitor
-      subject: "Thanks for contacting me!",
-      text: `Hello ${name},
+    const data = await response.json();
 
-Thank you for reaching out! I have received your message:
+    if (!data.ok) {
+      return res.status(500).json({ error: data.description || 'Telegram API error' });
+    }
 
-"${message}"
-
-I will get back to you soon.
-Best regards,
-Daxton
-`,
-    });
-
-    return res.status(200).json({ success: true, message: "Sent to Telegram + Email" });
-  } catch (error) {
-    console.error("Error:", error);
-    return res.status(500).json({ error: "Failed to send" });
+    return res.status(200).json({ success: true });
+  } catch (err) {
+    console.error('Telegram API Error:', err);
+    return res.status(500).json({ error: err.message || 'Unknown error' });
   }
 }

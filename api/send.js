@@ -14,7 +14,7 @@ export default async function handler(req, res) {
   const text = `📩 New message from your portfolio:\nName: ${name}\nEmail: ${email}\nMessage: ${message}`;
 
   try {
-    const tgRes = await fetch(`https://api.telegram.org/bot${botToken}/send`, {
+    const tgRes = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ chat_id: chatId, text }),

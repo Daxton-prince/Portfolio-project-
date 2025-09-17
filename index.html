@@ -753,7 +753,36 @@ section .title::after {
 .about .about-content .left {
   width: 45%;
 }
+img{
+    border-radius: 100%;
+    width:620px;
+    height:670px;
+    
+    background: radial-gradient(circle,red,blue);
+   background: radial-gradient(circle at center,
+        red,
+        orange,
+        yellow,
+        green,
+        cyan,
+        blue,
+        purple
+      );
+      background-size: 300% 300%;
+      animation: rainbowShift 12s ease-in-out infinite alternate;
+    }
 
+    @keyframes rainbowShift {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
 .about .about-content .left img {
   height: 400px;
   width: 400px;

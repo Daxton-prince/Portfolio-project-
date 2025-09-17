@@ -1594,24 +1594,12 @@ footer span a:hover {
     }
   });
 });
-const notification = document.getElementById('notification');
-
-function showNotification(message, success=true) {
-  notification.textContent = message;
-  notification.style.backgroundColor = success ? '#4caf50' : '#f44336';
-  notification.classList.add('show');
-  setTimeout(() => {
-    notification.classList.remove('show');
-  }, 3000);
-}
-
 document.getElementById('contactForm').addEventListener('submit', async (e) => {
   e.preventDefault();
 
   const formData = {
     name: e.target.name.value,
     email: e.target.email.value,
-    whatsapp: e.target.whatsapp.value,
     message: e.target.message.value
   };
 
@@ -1623,15 +1611,10 @@ document.getElementById('contactForm').addEventListener('submit', async (e) => {
     });
 
     const data = await res.json();
-
-    if (data.success) {
-      showNotification("✅ Message sent! We'll get back to you soon.");
-      e.target.reset();
-    } else {
-      showNotification(`❌ Failed to send: ${data.error}`, false);
-    }
+    if (data.success) alert('Message sent!');
+    else alert('Failed to send message.');
   } catch (err) {
-    showNotification("❌ Error sending message. Try again later.", false);
+    alert('Error sending message.');
     console.error(err);
   }
 });

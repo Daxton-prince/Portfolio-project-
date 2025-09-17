@@ -15,7 +15,7 @@ export default async function handler(req, res) {
     // -----------------------
     // 1. SEND TO TELEGRAM
     // -----------------------
-    const telegramMessage = `📩 New Portfolio Message:
+    const telegramMessage = `📩 New Message:
 👤 Name: ${name}
 📧 Email: ${email}
 📱 WhatsApp: ${whatsapp || "N/A"}
@@ -34,47 +34,30 @@ export default async function handler(req, res) {
     );
 
     // -----------------------
-    // 2. SETUP EMAIL TRANSPORTER
+    // 2. SEND EMAIL REPLY TO USER
     // -----------------------
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: process.env.EMAIL_USER, // your Gmail
-        pass: process.env.EMAIL_PASS, // Google App Password
+        user: process.env.EMAIL_USER, // your Gmail address
+        pass: process.env.EMAIL_PASS, // App Password from Google
       },
     });
 
-    // -----------------------
-    // 3. SEND EMAIL TO YOU
-    // -----------------------
     await transporter.sendMail({
-      from: `"Portfolio Bot" <${process.env.EMAIL_USER}>`,
-      to: process.env.EMAIL_USER, // your own inbox
-      subject: "📩 New Message from Portfolio Website",
-      text: `You got a new message from your portfolio:
-
-👤 Name: ${name}
-📧 Email: ${email}
-📱 WhatsApp: ${whatsapp || "N/A"}
-💬 Message: ${message}`,
-    });
-
-    // -----------------------
-    // 4. AUTO-REPLY TO USER (Optional)
-    // -----------------------
-    await transporter.sendMail({
-      from: `"Daxton Portfolio" <${process.env.EMAIL_USER}>`,
-      to: email,
-      subject: "✅ Thanks for reaching out!",
+      from: `"Your Portfolio" <${process.env.EMAIL_USER}>`,
+      to: email, // send reply to the visitor
+      subject: "Thanks for contacting me!",
       text: `Hello ${name},
 
-Thank you for contacting me. I have received your message and will reply soon.
+Thank you for reaching out! I have received your message:
 
-Your message was:
 "${message}"
 
-Regards,  
-Daxton`,
+I will get back to you soon.
+Best regards,
+Daxton
+`,
     });
 
     return res.status(200).json({ success: true, message: "Sent to Telegram + Email" });

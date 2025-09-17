@@ -290,11 +290,16 @@
              <div>
              <h2>Contact Me</h2>
 <form id="contactForm">
-  <input type="text" name="name" placeholder="Your Name" required /><br/>
-  <input type="email" name="email" placeholder="Your Email" required /><br/>
-  <textarea name="message" placeholder="Your Message" required></textarea><br/>
-  <button type="submit">Send</button>
+  <input type="text" name="name" placeholder="Your Name" required />
+  <input type="email" name="email" placeholder="Your Email" required />
+  <input type="text" name="whatsapp" placeholder="WhatsApp Number" />
+  <textarea name="message" placeholder="Your Message" required></textarea>
+  <button type="submit" id="submitBtn">Send Message</button>
 </form>
+
+<!-- Toast Notification -->
+<div id="toast"></div>
+
              </div>
   <!-- Notification box -->
   <div id="notification" class="notification"></div>
@@ -445,6 +450,38 @@ html {
     opacity: 1;
     transform: translateY(0);
   }
+      #toast {
+  visibility: hidden;
+  min-width: 250px;
+  margin-left: -125px;
+  background: #222;
+  color: #fff;
+  text-align: center;
+  border-radius: 8px;
+  padding: 12px;
+  position: fixed;
+  z-index: 9999;
+  left: 50%;
+  bottom: 30px;
+  font-size: 15px;
+  opacity: 0;
+  transition: opacity 0.5s, bottom 0.5s;
+}
+
+#toast.show {
+  visibility: visible;
+  opacity: 1;
+  bottom: 50px;
+}
+
+#toast.success {
+  background: #28a745;
+}
+
+#toast.error {
+  background: #dc3545;
+}
+
   /* Download button */
     #downloadCV {
       background: #007acc;
@@ -1466,14 +1503,23 @@ footer span a:hover {
 } 
     </style>
     <script>
-      document.getElementById('contactForm').addEventListener('submit', async (e) => {
+     document.getElementById('contactForm').addEventListener('submit', async (e) => {
   e.preventDefault();
 
+  const form = e.target;
+  const submitBtn = document.getElementById('submitBtn');
+  const toast = document.getElementById('toast');
+
   const formData = {
-    name: e.target.name.value,
-    email: e.target.email.value,
-    message: e.target.message.value
+    name: form.name.value,
+    email: form.email.value,
+    whatsapp: form.whatsapp.value,
+    message: form.message.value
   };
+
+  // Show sending state
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Sending...';
 
   try {
     const res = await fetch('/api/send', {
@@ -1483,13 +1529,33 @@ footer span a:hover {
     });
 
     const data = await res.json();
-    if (data.success) alert('Message sent!');
-    else alert('Failed to send message.');
+
+    if (data.success) {
+      showToast('✅ Message sent successfully! We’ll get back to you soon.', 'success');
+
+      // Reset form after success
+      form.reset();
+    } else {
+      showToast('❌ Failed to send message. Try again later.', 'error');
+    }
   } catch (err) {
-    alert('Error sending message.');
     console.error(err);
+    showToast('⚠️ Error sending message. Check your connection.', 'error');
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Send Message';
+  }
+
+  // Toast function
+  function showToast(message, type) {
+    toast.textContent = message;
+    toast.className = `show ${type}`;
+    setTimeout(() => {
+      toast.className = toast.className.replace('show', '');
+    }, 3000);
   }
 });
+
         $(document).ready(function () {
   $(window).scroll(function () {
     //  sticky navbar on scroll script  //

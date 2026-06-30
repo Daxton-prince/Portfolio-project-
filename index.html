@@ -544,17 +544,21 @@ h2{
 .loader img {
   width: 280px;
 }
-      a{
-        color:darkgray;
-        text-decoration:none;
-          padding:4px;
-        background:blue;
-      }
-      a:hover{
-        cursor:pointer;
-      
-        
-      }
+   .card a{
+    display: inline-block;
+  background: #1e3551;
+  color: #fff;
+  font-size: 25px;
+  padding: 8px 24px;
+  margin-top: 20px;
+  font-weight: 400;
+  border-radius: 6px;
+  border: 2px solid #1e3551;
+  transition: all 0.3s ease;
+}
+.card a:hover{color: #1e3551;
+  background: none;
+  animation: pulsate 1s ease-in-out;}
 
 ::-webkit-scrollbar-thumb {
   border-radius: 12px;
